@@ -1,8 +1,8 @@
 # Client settings
 window-title Networking Test
 sync-video #f
+want-midi #t
 texture-anisotropic-degree 16
-audio-library-name p3openal_audio
 video-library-name p3ffmpeg
 default-directnotify-level info
 smooth-lag 0.4

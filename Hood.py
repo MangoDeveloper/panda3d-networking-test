@@ -5,8 +5,10 @@ class Hood:
     def __init__(self):
         self.geomFile = None
         self.skyFile = None
+        self.musicFile = None
         self.geom = None
         self.sky = None
+        self.music = None
         self.zoneId = None
 
     def load(self):
@@ -23,6 +25,10 @@ class Hood:
         ce = CompassEffect.make(NodePath(), CompassEffect.PRot | CompassEffect.PZ)
         self.sky.node().setEffect(ce)
         self.sky.setTransparency(TransparencyAttrib.MDual, 1)
+        self.music = loader.loadMusic(self.musicFile + base.bgmExt)
+        self.music.setLoop(True)
+        self.music.setVolume(0.8)
+        self.music.play()
         base.currentHood = self.zoneId
 
     def unload(self):
@@ -30,12 +36,15 @@ class Hood:
             self.geom.removeNode()
         if self.sky:
             self.sky.removeNode()
+        if self.music:
+            self.music.stop()
 
 class TTHood(Hood):
     def __init__(self):
         Hood.__init__(self)
         self.geomFile = 'phase_4/models/neighborhoods/toontown_central_full'
         self.skyFile = 'phase_3.5/models/props/TT_sky'
+        self.musicFile = 'phase_4/audio/bgm/TC_nbrhood'
         self.zoneId = Globals.ToontownCentral
 
     def load(self):

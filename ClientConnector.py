@@ -92,7 +92,7 @@ class ClientConnector:
                     base.avatars[avId] = Toon(avId = avId)
                 av = base.avatars[avId].toonActor
                 av.posHprInterval(0.2, (x, y, z), (h, p, r)).start()
-                if av.getCurrentAnim() != anim: av.loop(anim)
+                if av.getCurrentAnim() != anim: base.avatars[avId].loop(anim)
                 av.setPlayRate(playrate, anim)
         else:
             self.notify.warning("Unknown datagram type %d!" % msgID)
