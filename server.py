@@ -55,7 +55,7 @@ def tskReaderPolling(taskdata):
         # Check the return value; if we were threaded, someone else could have
         # snagged this data before we did
         if cReader.getData(datagram):
-            myProcessDataFunction(datagram, datagram.getConnection())
+            processDatagram(datagram, datagram.getConnection())
     return Task.cont
 
 taskMgr.add(tskListenerPolling,"Poll the connection listener",-39)
@@ -63,21 +63,21 @@ taskMgr.add(tskReaderPolling,"Poll the connection reader",-40)
 
 def makeTestDatagram():
     # Send a test message
-    myPyDatagram = PyDatagram()
-    myPyDatagram.addUint8(PRINT_MESSAGE)
-    myPyDatagram.addString(":SERVER: Server-to-client connection established.")
-    return myPyDatagram
+    testDatagram = PyDatagram()
+    testDatagram.addUint8(PRINT_MESSAGE)
+    testDatagram.addString(":SERVER: Server-to-client connection established.")
+    return testDatagram
 
-def myProcessDataFunction(netDatagram, connection):
-    myIterator = PyDatagramIterator(netDatagram)
-    msgID = myIterator.getUint8()
+def processDatagram(netDatagram, connection):
+    iterator = PyDatagramIterator(netDatagram)
+    msgID = iterator.getUint8()
     if msgID == PRINT_MESSAGE:
-        messageToPrint = myIterator.getString()
+        messageToPrint = iterator.getString()
         print messageToPrint
     elif msgID == HEARTBEAT:
         sendHeartbeatResponse(connection)
     elif msgID == CLOSE_CONNECTION:
-        avId = myIterator.getUint64()
+        avId = iterator.getUint64()
         print "Avatar %d going offline" % avId
         avatars[Globals.ToontownCentral].pop(avId)
         activeConnections.remove(connection)
@@ -88,15 +88,15 @@ def myProcessDataFunction(netDatagram, connection):
         for client in activeConnections:
             cWriter.send(avLeftDatagram, client)
     elif msgID == UPDATE_POS:
-        avId = myIterator.getUint64()
-        x = myIterator.getFloat64()
-        y = myIterator.getFloat64()
-        z = myIterator.getFloat64()
-        h = myIterator.getFloat64()
-        p = myIterator.getFloat64()
-        r = myIterator.getFloat64()
-        anim = myIterator.getString()
-        playrate = myIterator.getFloat64()
+        avId = iterator.getUint64()
+        x = iterator.getFloat64()
+        y = iterator.getFloat64()
+        z = iterator.getFloat64()
+        h = iterator.getFloat64()
+        p = iterator.getFloat64()
+        r = iterator.getFloat64()
+        anim = iterator.getString()
+        playrate = iterator.getFloat64()
         avatars[Globals.ToontownCentral][avId].x = x
         avatars[Globals.ToontownCentral][avId].y = y
         avatars[Globals.ToontownCentral][avId].z = z
@@ -106,23 +106,23 @@ def myProcessDataFunction(netDatagram, connection):
         avatars[Globals.ToontownCentral][avId].anim = anim
         avatars[Globals.ToontownCentral][avId].playrate = playrate
     elif msgID == NEW_CONNECTION:
-        avId = myIterator.getUint64()
-        x = myIterator.getFloat64()
-        y = myIterator.getFloat64()
-        z = myIterator.getFloat64()
-        h = myIterator.getFloat64()
-        p = myIterator.getFloat64()
-        r = myIterator.getFloat64()
-        anim = myIterator.getString()
-        playrate = myIterator.getFloat64()
+        avId = iterator.getUint64()
+        x = iterator.getFloat64()
+        y = iterator.getFloat64()
+        z = iterator.getFloat64()
+        h = iterator.getFloat64()
+        p = iterator.getFloat64()
+        r = iterator.getFloat64()
+        anim = iterator.getString()
+        playrate = iterator.getFloat64()
         avatars[Globals.ToontownCentral][avId] = ServerToon(x, y, z, h, p, r, anim, playrate)
     else:
         print "Unknown datagram type %d!" % msgID
 
 def sendTestDatagram(connection):
     # broadcast a message to all clients
-    myPyDatagram = makeTestDatagram()  # build a datagram to send
-    cWriter.send(myPyDatagram, connection)
+    testDatagram = makeTestDatagram()  # build a datagram to send
+    cWriter.send(testDatagram, connection)
 
 def sendHeartbeatResponse(connection):
     heartDatagram = PyDatagram()

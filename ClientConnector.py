@@ -15,7 +15,7 @@ class ClientConnector:
 
     def __init__(self):
         self.notify.info("Client connector created.")
-        self.connected = False
+        self.recievedHeartbeat = False
         self.cManager = QueuedConnectionManager()
         self.cReader = QueuedConnectionReader(self.cManager, 0)
         self.cWriter = ConnectionWriter(self.cManager,0)
@@ -36,8 +36,8 @@ class ClientConnector:
             return
 
         taskMgr.add(self.tskReaderPolling,"Poll the connection reader",-40)
-        myPyDatagram = self.buildTestDatagram()  # build a datagram to send
-        self.cWriter.send(myPyDatagram,self.serverConnection)
+        testDatagram = self.buildTestDatagram()  # build a datagram to send
+        self.cWriter.send(testDatagram, self.serverConnection)
         self.heartbeat()
 
     def unableToConnect(self):
@@ -49,42 +49,42 @@ class ClientConnector:
             # Check the return value; if we were threaded, someone else could have
             # snagged this data before we did
             if self.cReader.getData(datagram):
-                self.myProcessDataFunction(datagram)
+                self.processDatagram(datagram)
         return Task.cont
 
     def buildTestDatagram(self):
         # Send a test message
-        myPyDatagram = PyDatagram()
-        myPyDatagram.addUint8(PRINT_MESSAGE)
-        myPyDatagram.addString(":CLIENT: Client to server connection established.")
-        return myPyDatagram
+        testDatagram = PyDatagram()
+        testDatagram.addUint8(PRINT_MESSAGE)
+        testDatagram.addString(":CLIENT: Client to server connection established.")
+        return testDatagram
 
-    def myProcessDataFunction(self, netDatagram):
-        myIterator = PyDatagramIterator(netDatagram)
-        msgID = myIterator.getUint8()
+    def processDatagram(self, netDatagram):
+        iterator = PyDatagramIterator(netDatagram)
+        msgID = iterator.getUint8()
         if msgID == PRINT_MESSAGE:
-            messageToPrint = myIterator.getString()
+            messageToPrint = iterator.getString()
             print messageToPrint
         elif msgID == HEARTBEAT:
             self.handleHeartbeat()
         elif msgID == CLOSE_CONNECTION:
-            avId = myIterator.getUint64()
+            avId = iterator.getUint64()
             base.avatars[avId].remove()
             base.avatars.pop(avId)
         elif msgID == AVATAR_LIST:
             # Each Int64 affects the remaining size by 8
-            avs = myIterator.getRemainingSize() / (8 * 9) # We have 9 fields that occupy 8 units each, how many avatars do we have?
+            avs = iterator.getRemainingSize() / (8 * 9) # We have 9 fields that occupy 8 units each, how many avatars do we have?
             if avs == 0: return # We have no avatars right now.
             for x in xrange(avs):
-                avId = myIterator.getUint64()
-                x = myIterator.getFloat64()
-                y = myIterator.getFloat64()
-                z = myIterator.getFloat64()
-                h = myIterator.getFloat64()
-                p = myIterator.getFloat64()
-                r = myIterator.getFloat64()
-                anim = myIterator.getString()
-                playrate = myIterator.getFloat64()
+                avId = iterator.getUint64()
+                x = iterator.getFloat64()
+                y = iterator.getFloat64()
+                z = iterator.getFloat64()
+                h = iterator.getFloat64()
+                p = iterator.getFloat64()
+                r = iterator.getFloat64()
+                anim = iterator.getString()
+                playrate = iterator.getFloat64()
                 if avId == base.localAvatar.id: continue
                 try:
                     base.avatars[avId]
@@ -137,8 +137,8 @@ class ClientConnector:
         taskMgr.doMethodLater(6, self.checkHeartbeat, "Check if we got a heartbeat response") # 6 seconds seems reasonable for timing out
 
     def checkHeartbeat(self, task):
-        if self.connected:
-            self.connected = False
+        if self.recievedHeartbeat:
+            self.recievedHeartbeat = False
             self.notify.debug("Recieved heartbeat")
             self.heartbeat()
         else:
@@ -146,4 +146,4 @@ class ClientConnector:
         return Task.done
 
     def handleHeartbeat(self):
-        self.connected = True
+        self.recievedHeartbeat = True
