@@ -1,0 +1,19 @@
+import RootObject/UD
+import AvatarManager/UD
+import DistributedToon/AI
+import DistributedToonManager/AI
+
+dclass RootObject : DistributedObject {
+};
+
+dclass AvatarManager : DistributedObject {
+  requestAccess() clsend airecv;
+  accessResponse(uint8 success);
+};
+
+dclass DistributedToon : DistributedSmoothNode {
+};
+
+dclass DistributedToonManager : DistributedObject {
+  requestAvatar() clsend airecv;
+};
