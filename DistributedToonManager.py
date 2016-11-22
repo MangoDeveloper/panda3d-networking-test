@@ -6,7 +6,6 @@ class DistributedToonManager(DistributedObject.DistributedObject):
         self.cr = cr
 
     def announceGenerate(self):
-        print "I AM HOSTING MY WEBSITE ON ONE OF YOUR OVH BOXES"
         DistributedObject.DistributedObject.announceGenerate(self)
         self.cr.toonMgr = self
         messenger.send(self.cr.uniqueName('gotToonMgr'))

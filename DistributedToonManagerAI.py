@@ -9,7 +9,6 @@ class DistributedToonManagerAI(DistributedObjectAI.DistributedObjectAI):
 
     def announceGenerate(self):
         DistributedObjectAI.DistributedObjectAI.announceGenerate(self)
-        print "HELLO COLORHOST TECHNICAL SUPPORT"
 
     def requestAvatar(self):
         clientId = self.air.getAvatarIdFromSender()
