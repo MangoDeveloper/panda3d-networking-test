@@ -103,7 +103,7 @@ def getWhereName(zoneId, isToon):
                     where = 'factoryInterior'
                 elif getHoodId(zoneId) == CashbotHQ:
                     where = 'mintInterior'
-                elif getHoodId(zoneId) == BossbotHQ and config.GetBool('want-operation-duckhunt', False):
+                elif getHoodId(zoneId) == BossbotHQ:
                     where = 'cogHQLobby'
                 else:
                     zoneUtilNotify.error('unknown cogHQ interior for hood: ' + str(getHoodId(zoneId)))
@@ -228,9 +228,6 @@ def getWakeInfo(hoodId = None, zoneId = None):
             showWake = 1
         elif canonicalZoneId == ToontownCentral:
             wakeWaterHeight = TTWakeWaterHeight
-            showWake = 1
-        elif canonicalZoneId == ToonFest:
-            #0 is the water wake height, so we don't have to do anything here
             showWake = 1
         elif canonicalZoneId == OutdoorZone:
             wakeWaterHeight = OZWakeWaterHeight
